@@ -110,7 +110,6 @@ namespace ContainerShip
         }
 
 
-
         public List<Container> OrderList(List<Container> list)
         {
             return list.OrderByDescending(x => x.Cooled).ThenBy(x => x.Valuable).ToList();

@@ -34,6 +34,11 @@ namespace ContainerShip
             Stack.Add(container);
         }
 
+        public Container GetTopContainer()
+        {
+            return Stack.Last();
+        }
+
 
     }
 }
