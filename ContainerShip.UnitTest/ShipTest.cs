@@ -61,7 +61,7 @@ namespace ContainerShip.UnitTest
         }
 
         [TestMethod]
-        public void Balance_TestArea_True()
+        public void Balance_TestArea_False()
         {
 
             var testShip = new Ship(testArea);
