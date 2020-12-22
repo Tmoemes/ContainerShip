@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 
 namespace ContainerShip
 {
@@ -29,9 +30,6 @@ namespace ContainerShip
             UpdateDimensions();
         }
 
-        public Ship()
-        {
-        }
 
         public Ship(List<List<ContainerStack>> containers)
         {
@@ -49,15 +47,22 @@ namespace ContainerShip
         {
             List<Container> orderedList = OrderList(containers);
 
+            foreach (var cont in orderedList)
+            {
+                int[] coords = FindEmptySpot(cont);
+                if (cont.Valuable)
+                {
 
+                }
+            }
         }
 
-        private int[,,] FindEmptySpot(Container container)
+        private int[] FindEmptySpot(Container container)
         {
-            int[,,] coords = new int[0,0,0];
+            int[] coords = new int[0];
             int startCornerX;
             int endCornerX;
-            int y = Length;
+            int depth = Length;
 
             //assign the search area according to the balance of the ship
             if (Balance())
@@ -73,29 +78,100 @@ namespace ContainerShip
 
             if (container.Cooled)//if cooling is needed only check the first row
             {
-                y = 0;
+                depth = 0;
             }
 
-            return coords;
+
+            for (int i = startCornerX; i <= endCornerX; i++)
+            {
+                for (int j = 0; j <= depth; j++)
+                {
+                    if (Containers[i][j].CheckPossible(container))
+                    {
+                        if (CheckAccess(i, j,container.Valuable))
+                        {
+                            return new[] {i, j};
+                        }
+                        else if (!container.Valuable && CheckAccess(i,j))
+                        {
+                            return new[] { i, j };
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         public bool Balance()//true is lower half Width lighter, false is upper half Width lighter
         {
-            bool side = true;
-
 
             int bottomHalf = WeightByArea(0,Width/2,0, Length);
             int upperHalf = WeightByArea(Width-(Width/2),Width,0, Length);
 
-            if ((bottomHalf-upperHalf) < 0) side = true;
-            else if ((bottomHalf - upperHalf) > 0) side = false;
+            if ((bottomHalf-upperHalf) < 0) return true;
+            else if ((bottomHalf - upperHalf) > 0) return false;
 
-            return side;
+            return true;
         }
 
+        
+
+        bool CheckAccess(int x , int z, bool value)//check if the container would not block any accessibility if placed in specified stack //todo make this better and shorter
+        {
+
+            int y = Containers[x][z].GetHeight();
+            if(Containers[x][z+1].GetContainerAt(y) == null && Containers[x][z - 1].GetContainerAt(y) == null) //if there is both no container in front and behind
+            {
+                return true;
+            }
+            else if (Containers[x][z + 1].GetContainerAt(y) != null && Containers[x][z - 1].GetContainerAt(y) == null)//if there is only a container in front
+            {
+                if (Containers[x][z + 1].GetContainerAt(y).Valuable && Containers[x][z + 2].GetContainerAt(y) == null)//if container in front is valuable and accessible from the other side
+                {
+                    return true;
+                }
+                else if (!Containers[x][z + 1].GetContainerAt(y).Valuable) //if container in front is not valuable
+                {
+                    return true;
+                }
+            }
+            else if (Containers[x][z + 1].GetContainerAt(y) == null && Containers[x][z - 1].GetContainerAt(y) != null)//if there is only a container in front
+            {
+                if (Containers[x][z - 1].GetContainerAt(y).Valuable && Containers[x][z - 2].GetContainerAt(y) == null)//if container behind is valuable and accessible from the other side
+                {
+                    return true;
+                }
+                else if (!Containers[x][z - 1].GetContainerAt(y).Valuable) //if container behind is not valuable
+                {
+                    return true;
+                }
+            }
+            else if (Containers[x][z + 1].GetContainerAt(y) != null && Containers[x][z - 1].GetContainerAt(y) != null)//if there is a container in front and behind
+            {
+                if (value) return false;
 
 
-        public int WeightByArea(int widthStart, int widthEnd, int lengthStart, int lengthEnd) //gets the total weight of the specified range
+                if (!value)
+                {
+                    if ((Containers[x][z + 1].GetContainerAt(y).Valuable &&
+                         Containers[x][z + 2].GetContainerAt(y) == null) ||
+                        (Containers[x][z - 1].GetContainerAt(y).Valuable &&
+                         Containers[x][z - 2].GetContainerAt(y) == null)
+                    ) //if either container is valuable but accessible from other side
+                    {
+                        return true;
+                    }
+                    else if (!Containers[x][z + 1].GetContainerAt(y).Valuable && !Containers[x][z - 1].GetContainerAt(y).Valuable) return true; //if neither container is valuable
+                    else return false;
+                }
+            }
+
+            return false;
+        }  
+
+
+        public int WeightByArea(int widthStart, int widthEnd, int lengthStart, int lengthEnd) //gets the total weight of the specified area
         {
             int total = 0;
 

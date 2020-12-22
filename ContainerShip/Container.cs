@@ -21,10 +21,6 @@ namespace ContainerShip
             Cooled = cooled;
         }
 
-        public Container()
-        {
-            
-        }
 
         public List<Container> GenerateContainersList(int amount)
         {

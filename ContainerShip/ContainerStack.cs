@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Schema;
 
 namespace ContainerShip
 {
@@ -39,6 +40,23 @@ namespace ContainerShip
             return Stack.Last();
         }
 
+        public Container GetContainerAt(int height)
+        {
+            return Stack[height];
+        }
+
+
+        public bool CheckPossible(Container container)
+        {
+            if (Stack.Sum(t => t.Weight) - Stack[0].Weight <= 120000)
+            {
+                if (!Stack.Last().Valuable) return true;
+                else if (Stack.Last().Valuable && container.Valuable) return true;
+                else return false;
+            }
+
+            return false;
+        }
 
     }
 }
