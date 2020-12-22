@@ -50,16 +50,31 @@ namespace ContainerShip
             foreach (var cont in orderedList)
             {
                 int[] coords = FindEmptySpot(cont);
-                if (cont.Valuable)
+                if (coords != null)
                 {
-
+                    Containers[coords[0]][coords[1]].AddToStack(cont);
                 }
+                else if (coords == null)
+                {
+                    if (cont.Cooled)
+                    {
+                        Width += 1;
+                        coords = FindEmptySpot(cont);
+                        Containers[coords[0]][coords[1]].AddToStack(cont);
+                    }
+                    else if (!cont.Cooled)
+                    {
+                        Length += 1;
+                        coords = FindEmptySpot(cont);
+                        Containers[coords[0]][coords[1]].AddToStack(cont);
+                    }
+                }
+
             }
         }
 
         private int[] FindEmptySpot(Container container)
         {
-            int[] coords = new int[0];
             int startCornerX;
             int endCornerX;
             int depth = Length;
@@ -86,16 +101,10 @@ namespace ContainerShip
             {
                 for (int j = 0; j <= depth; j++)
                 {
-                    if (Containers[i][j].CheckPossible(container))
+                    if (!Containers[i][j].CheckWeigth(container)) continue;
+                    if (CheckAccess(i, j,container.Valuable))
                     {
-                        if (CheckAccess(i, j,container.Valuable))
-                        {
-                            return new[] {i, j};
-                        }
-                        else if (!container.Valuable && CheckAccess(i,j))
-                        {
-                            return new[] { i, j };
-                        }
+                        return new[] {i, j};
                     }
                 }
             }
@@ -115,9 +124,8 @@ namespace ContainerShip
             return true;
         }
 
-        
 
-        bool CheckAccess(int x , int z, bool value)//check if the container would not block any accessibility if placed in specified stack //todo make this better and shorter
+        private bool CheckAccess(int x , int z, bool value)//check if the container would not block any accessibility if placed in specified stack //todo make this better and shorter
         {
 
             int y = Containers[x][z].GetHeight();

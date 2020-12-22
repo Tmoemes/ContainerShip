@@ -46,7 +46,7 @@ namespace ContainerShip
         }
 
 
-        public bool CheckPossible(Container container)
+        public bool CheckWeigth(Container container)
         {
             if (Stack.Sum(t => t.Weight) - Stack[0].Weight <= 120000)
             {
