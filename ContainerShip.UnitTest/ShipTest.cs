@@ -40,7 +40,7 @@ namespace ContainerShip.UnitTest
         public void GetWeightByArea_TestArea_330000()
         {
             
-            var testShip = new Ship(testArea);
+            var testShip = new Ship(testArea,4,3);
 
             var result = testShip.WeightByArea(0,4,0,3);
 
@@ -52,7 +52,7 @@ namespace ContainerShip.UnitTest
         public void GetWeightByArea_TestArea4x1_110000()
         {
 
-            var testShip = new Ship(testArea);
+            var testShip = new Ship(testArea,4,3);
 
             var result = testShip.WeightByArea(0, 4, 1, 2);
 
@@ -64,7 +64,7 @@ namespace ContainerShip.UnitTest
         public void Balance_TestArea_False()
         {
 
-            var testShip = new Ship(testArea);
+            var testShip = new Ship(testArea,testArea.Count,testArea[0].Count);
 
 
             var result = testShip.Balance();

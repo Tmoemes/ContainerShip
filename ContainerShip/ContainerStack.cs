@@ -19,6 +19,11 @@ namespace ContainerShip
             }
         }
 
+        public ContainerStack()
+        {
+            
+        }
+
 
         public int GetWeight()
         {
@@ -48,7 +53,8 @@ namespace ContainerShip
 
         public bool CheckWeigth(Container container)
         {
-            if (Stack.Sum(t => t.Weight) - Stack[0].Weight <= 120000)
+            if (Stack.Count == 0) return true;
+            if (Stack.Sum(t => t.Weight) - Stack[0].Weight + container.Weight <= 120)
             {
                 if (!Stack.Last().Valuable) return true;
                 else if (Stack.Last().Valuable && container.Valuable) return true;
@@ -58,5 +64,38 @@ namespace ContainerShip
             return false;
         }
 
+
+        public string GetWeightString()
+        {
+            var weightstring = "";
+            if (Stack.Count == 0) return weightstring;
+            foreach (var container in Stack)
+            {
+                weightstring += container.Weight.ToString();
+                weightstring += "-";
+            }
+            //remove last extra -
+            weightstring = weightstring.Remove(weightstring.Length - 1);
+
+            return weightstring;
+        }
+
+        public override string ToString()
+        {
+            var stackstring = "";
+            if (Stack.Count == 0) return stackstring; 
+            foreach (var container in Stack)
+            {
+                if (container.Cooled && container.Valuable) stackstring += "4";
+                if (container.Cooled && !container.Valuable) stackstring += "3";
+                if (!container.Cooled && container.Valuable) stackstring += "2";
+                if (!container.Cooled && !container.Valuable) stackstring += "1";
+                stackstring += "-";
+            }
+            //remove last extra -
+            stackstring = stackstring.Remove(stackstring.Length - 1);
+
+            return stackstring;
+        }
     }
 }

@@ -12,7 +12,6 @@ namespace ContainerShip
         public int Width { get; private set; }
         public int Length { get; private set; }
         public List<List<ContainerStack>> Containers { get; private set; }
-        public List<Container> StartContainers { get; private set; }
 
 
         /* diagram for me to remember how I assigned the axeses
@@ -24,24 +23,37 @@ namespace ContainerShip
 
          */
 
-        public Ship(List<Container> containers)
+        public Ship(int width, int length)
         {
-            StartContainers = containers;
-            UpdateDimensions();
+            this.Width = width;
+            this.Length = length;
+            Containers = new List<List<ContainerStack>>();
+            initialiseShip(width,length);
+            
         }
 
-
-        public Ship(List<List<ContainerStack>> containers)
+        public Ship(List<List<ContainerStack>> containers,int width, int length)
         {
             this.Containers = containers;
-            UpdateDimensions();
+            this.Width = width;
+            this.Length = length;
         }
 
-        private void UpdateDimensions()
+
+        void initialiseShip(int width, int length)
         {
-            Width = Containers.Count;
-            Length = Containers[0].Count;
+
+            for (int i = 0; i < width; i++)
+            {
+                Containers.Add(new List<ContainerStack>());
+
+                for (int j = 0; j < length; j++)
+                {
+                    Containers[i].Add(new ContainerStack());
+                }
+            }
         }
+
 
         public void Sort(List<Container> containers)
         {
@@ -52,31 +64,17 @@ namespace ContainerShip
                 int[] coords = FindEmptySpot(cont);
                 if (coords != null)
                 {
+                    
                     Containers[coords[0]][coords[1]].AddToStack(cont);
                 }
-                else if (coords == null)
-                {
-                    if (cont.Cooled)
-                    {
-                        Width += 1;
-                        coords = FindEmptySpot(cont);
-                        Containers[coords[0]][coords[1]].AddToStack(cont);
-                    }
-                    else if (!cont.Cooled)
-                    {
-                        Length += 1;
-                        coords = FindEmptySpot(cont);
-                        Containers[coords[0]][coords[1]].AddToStack(cont);
-                    }
-                }
-
+                
             }
         }
 
         private int[] FindEmptySpot(Container container)
         {
-            int startCornerX;
-            int endCornerX;
+            int startCornerX = Width / 2 ;
+            int endCornerX = Width;
             int depth = Length;
 
             //assign the search area according to the balance of the ship
@@ -85,11 +83,7 @@ namespace ContainerShip
                 startCornerX = 0;
                 endCornerX = Width / 2;
             }
-            else
-            {
-                startCornerX = Width - (Width/2);//weird calculation to account for uneven widths
-                endCornerX = Width;
-            }
+            
 
             if (container.Cooled)//if cooling is needed only check the first row
             {
@@ -97,15 +91,19 @@ namespace ContainerShip
             }
 
 
-            for (int i = startCornerX; i <= endCornerX; i++)
+            for (int i = startCornerX; i < endCornerX; i++)
             {
-                for (int j = 0; j <= depth; j++)
+                for (int j = 0; j < depth; j++)
                 {
-                    if (!Containers[i][j].CheckWeigth(container)) continue;
-                    if (CheckAccess(i, j,container.Valuable))
+                    if (Containers[i][j].CheckWeigth(container))
                     {
-                        return new[] {i, j};
-                    }
+                        return new[] { i, j };
+                    };
+
+                    /*if (CheckAccess(i, j,container.Valuable))
+                    {
+                        
+                    }*/
                 }
             }
 
@@ -118,18 +116,17 @@ namespace ContainerShip
             int bottomHalf = WeightByArea(0,Width/2,0, Length);
             int upperHalf = WeightByArea(Width-(Width/2),Width,0, Length);
 
-            if ((bottomHalf-upperHalf) < 0) return true;
-            else if ((bottomHalf - upperHalf) > 0) return false;
-
-            return true;
+            if (bottomHalf - upperHalf < 0) return true;
+            if (bottomHalf - upperHalf >= 0) return false;
+            return false;
         }
 
 
-        private bool CheckAccess(int x , int z, bool value)//check if the container would not block any accessibility if placed in specified stack //todo make this better and shorter
+        /*private bool CheckAccess(int x , int z, bool value)//check if the container would not block any accessibility if placed in specified stack //todo make this better and shorter
         {
 
             int y = Containers[x][z].GetHeight();
-            if(Containers[x][z+1].GetContainerAt(y) == null && Containers[x][z - 1].GetContainerAt(y) == null) //if there is both no container in front and behind
+            if(FrontBackNull(x,y,z)) //if there is both no container in front and behind
             {
                 return true;
             }
@@ -176,17 +173,26 @@ namespace ContainerShip
             }
 
             return false;
-        }  
+        }*/
+
+
+        private bool FrontBackNull (int x, int y, int z)
+        {
+            if (Containers[x][z + 1].GetContainerAt(y) == null &&
+                Containers[x][z - 1].GetContainerAt(y) == null) return true;
+            return false;
+        }
 
 
         public int WeightByArea(int widthStart, int widthEnd, int lengthStart, int lengthEnd) //gets the total weight of the specified area
         {
             int total = 0;
-
             for (int i = widthStart; i < widthEnd; i++)
             {
+                
                 for (int j = lengthStart; j < lengthEnd; j++)
                 {
+                    
                     total += Containers[i][j].GetWeight();
                 }
             }
@@ -202,7 +208,47 @@ namespace ContainerShip
 
         public override string ToString() //todo make tostring output a correctly formatted url for the unity visualiser
         {
-            return base.ToString();
+            //1 = basic, 2 = valuable, 3 = cooled, 4 = valuable,cooled
+            var baseUrl = "https://i872272core.venus.fhict.nl/ContainerVisualizer/index.html?";
+            var dimenString = $"length={Length}&width={Width}";
+            var stackString = "&stacks=";
+            var weightString = "&weights=";
+
+            foreach (var stackList in Containers)
+            {
+                foreach (var stack in stackList)
+                {
+                    if (stack.GetHeight() != 0)
+                    {
+                        stackString += stack.ToString();
+                        stackString += ",";
+
+                        weightString += stack.GetWeightString();
+                        weightString += ",";
+                    }
+                    else
+                    {
+                        stackString += "*";
+                        weightString += "*";
+                    }
+                }
+                //remove the last extra added , 
+                stackString = stackString.Remove(stackString.Length - 1);
+                stackString += "/";
+
+                weightString = weightString.Remove(weightString.Length - 1);
+                weightString += "/";
+
+            }
+
+            //remove the last extra added /
+            stackString = stackString.Remove(stackString.Length - 1);
+            weightString = weightString.Remove(weightString.Length - 1);
+            //remove all the placeholder *
+            stackString = stackString.Replace("*", "");
+            weightString = weightString.Replace("*", "");
+
+            return baseUrl+dimenString+stackString+weightString;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ContainerShip
         public bool Valuable { get; private set; } //only valuables allowed on top of valuables 
         public bool Cooled { get; private set; } //only in front row
 
-        private Random random = new Random();
+        private static readonly Random _random = new Random();
 
         public Container(int weight,bool valuable,bool cooled)
         {
@@ -34,11 +34,11 @@ namespace ContainerShip
             return tempList;
         }
 
-        public Container GenerateContainer()
+        public static Container GenerateContainer()
         {
-            int randweight = random.Next(4000, 30001); //random weight in the allowed range
-            bool randvalue = !Convert.ToBoolean(random.Next(0, 5)); //1 in 5 containers will be valuable
-            bool randcool = !Convert.ToBoolean(random.Next(0, 10)); //1 in 10 containers will be cooled
+            int randweight = _random.Next(4, 30); //random weight in the allowed range
+            bool randvalue = !Convert.ToBoolean(_random.Next(0, 5)); //1 in 5 containers will be valuable
+            bool randcool = !Convert.ToBoolean(_random.Next(0, 10)); //1 in 10 containers will be cooled
 
             return new Container(randweight, randvalue, randcool);
         }
