@@ -42,7 +42,7 @@ namespace ContainerShip.UnitTest
             
             var testShip = new Ship(testArea,4,3);
 
-            var result = testShip.WeightByArea(0,4,0,3);
+            var result = testShip.GetWeightByArea(0,4,0,3);
 
             Assert.AreEqual(330000,result);
 
@@ -54,20 +54,20 @@ namespace ContainerShip.UnitTest
 
             var testShip = new Ship(testArea,4,3);
 
-            var result = testShip.WeightByArea(0, 4, 1, 2);
+            var result = testShip.GetWeightByArea(0, 4, 1, 2);
 
             Assert.AreEqual(110000, result);
 
         }
 
         [TestMethod]
-        public void Balance_TestArea_False()
+        public void IsLowerHalfLighter_TestArea_False()
         {
 
             var testShip = new Ship(testArea,testArea.Count,testArea[0].Count);
 
 
-            var result = testShip.Balance();
+            var result = testShip.IsLowerHalfLighter();
 
 
             Assert.IsFalse(result);

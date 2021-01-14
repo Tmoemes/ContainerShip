@@ -25,7 +25,7 @@ namespace ContainerShip
         }
 
 
-        public int GetWeight()
+        public int GetTotalWeight()
         {
             return Stack.Sum(t => t.Weight);
         }
@@ -51,17 +51,12 @@ namespace ContainerShip
         }
 
 
-        public bool CheckWeigth(Container container)
+        public bool CheckStackingWeigth(Container container)
         {
             if (Stack.Count == 0) return true;
-            if (Stack.Sum(t => t.Weight) - Stack[0].Weight + container.Weight <= 120)
-            {
-                if (!Stack.Last().Valuable) return true;
-                else if (Stack.Last().Valuable && container.Valuable) return true;
-                else return false;
-            }
-
-            return false;
+            if (Stack.Sum(t => t.Weight) - Stack[0].Weight + container.Weight > 120) return false;
+            if (!Stack.Last().Valuable) return true;
+            return Stack.Last().Valuable && container.Valuable;
         }
 
 

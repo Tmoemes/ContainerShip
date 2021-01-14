@@ -23,7 +23,7 @@ namespace ContainerShip.UnitTest
             ContainerStack TestStack = new ContainerStack(TestContainers);
             
             //act
-            int result = TestStack.GetWeight();
+            int result = TestStack.GetTotalWeight();
 
             //assert
             Assert.AreEqual(26000, result);

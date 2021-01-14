@@ -12,7 +12,7 @@ namespace ContainerShip
         public bool Valuable { get; private set; } //only valuables allowed on top of valuables 
         public bool Cooled { get; private set; } //only in front row
 
-        private static readonly Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         public Container(int weight,bool valuable,bool cooled)
         {
@@ -24,9 +24,9 @@ namespace ContainerShip
 
         public List<Container> GenerateContainersList(int amount)
         {
-            List<Container> tempList = new List<Container>();
+            var tempList = new List<Container>();
 
-            for (int i = 0; i < amount; i++)
+            for (var i = 0; i < amount; i++)
             {
                 tempList.Add(GenerateContainer());
             }
@@ -36,9 +36,9 @@ namespace ContainerShip
 
         public static Container GenerateContainer()
         {
-            int randweight = _random.Next(4, 30); //random weight in the allowed range
-            bool randvalue = !Convert.ToBoolean(_random.Next(0, 5)); //1 in 5 containers will be valuable
-            bool randcool = !Convert.ToBoolean(_random.Next(0, 10)); //1 in 10 containers will be cooled
+            var randweight = Random.Next(4, 30); //random weight in the allowed range
+            var randvalue = !Convert.ToBoolean(Random.Next(0, 5)); //1 in 5 containers will be valuable
+            var randcool = !Convert.ToBoolean(Random.Next(0, 10)); //1 in 10 containers will be cooled
 
             return new Container(randweight, randvalue, randcool);
         }
@@ -46,7 +46,7 @@ namespace ContainerShip
 
         public override string ToString()
         {
-            string temp = $"Weight: {Weight}, Valuable: {Valuable}, Cooled: {Cooled}";
+            var temp = $"Weight: {Weight}, Valuable: {Valuable}, Cooled: {Cooled}";
             return temp;
         }
     }
